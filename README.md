@@ -1,8 +1,3 @@
-Below is a detailed explanation of the project, along with a Markdown file format. The Markdown file contains an explanation of the problem, step-by-step approach, and answers to **what**, **how**, and **why** for each part of the coding solution.
-
----
-
-```markdown
 # Book Recommendation System Using K-Nearest Neighbors (KNN)
 
 ## Problem Description
@@ -220,4 +215,3 @@ test_book_recommendation()
 
 ## Conclusion
 This project demonstrates how to use **K-Nearest Neighbors (KNN)** to build a recommendation system. The step-by-step approach ensures a clear understanding of data preprocessing, model training, and evaluation. The resulting function provides accurate and meaningful book recommendations.
-```
