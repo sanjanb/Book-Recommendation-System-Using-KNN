@@ -125,6 +125,9 @@ filtered_books = filtered_books[filtered_books >= 100].index
 df_filtered_users = df_ratings[df_ratings['user'].isin(filtered_users)]
 df_filtered_books = df_filtered_users[df_filtered_users['isbn'].isin(filtered_books)]
 
+book_user_matrix = df_filtered_books.pivot(index='user', columns='isbn', values='rating').fillna(0)
+print(book_user_matrix.shape)  # Dimensions of the matrix
+
 ```
 
 ---
