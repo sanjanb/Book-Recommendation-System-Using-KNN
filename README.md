@@ -1,18 +1,20 @@
-# Book Recommendation System 📚✨
+# Book Recommendation System 📖✨
 
-This project builds a **K-Nearest Neighbors (KNN)** based recommendation algorithm for books, leveraging the **Book-Crossings dataset**. The system suggests five books similar to the input book title, using statistical measures of closeness.
+This project builds a **K-Nearest Neighbors (KNN)** based recommendation algorithm using the **Book-Crossings dataset**. It recommends similar books for a given book title, based on user preferences.
 
 ---
 
 ## Table of Contents
+
 - [Project Overview](#project-overview)
 - [Dataset](#dataset)
 - [Algorithm Description](#algorithm-description)
-- [Setup Instructions](#setup-instructions)
+- [How to Run](#how-to-run)
 - [How It Works](#how-it-works)
 - [File Breakdown](#file-breakdown)
   - [code-breakdown.md](#code-breakdownmd)
-  - [book_recommendation.md](#book_recommendationmd)
+  - [recommendation-system.md](#recommendation-systemmd)
+- [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -20,7 +22,7 @@ This project builds a **K-Nearest Neighbors (KNN)** based recommendation algorit
 
 ## Project Overview
 
-This project uses the **K-Nearest Neighbors** algorithm to recommend books. By analyzing user ratings from the **Book-Crossings dataset**, the algorithm identifies books that share similar user preferences.
+This project implements a **KNN-based Book Recommendation System**. By analyzing the Book-Crossings dataset, the system suggests books similar to an input book based on user ratings.
 
 ---
 
@@ -28,119 +30,111 @@ This project uses the **K-Nearest Neighbors** algorithm to recommend books. By a
 
 The **Book-Crossings dataset** includes:
 - **1.1 million ratings** on a scale of 1-10.
-- **270,000 books** rated by **90,000 users**.
+- Metadata for **270,000 books**.
+- Ratings from **90,000 users**.
 
 ### Cleaning Criteria:
-- **Users**: Only include those with **200+ ratings**.
-- **Books**: Only include books with **100+ ratings**.
+- **Users**: Include only users with **200+ ratings**.
+- **Books**: Include only books with **100+ ratings**.
 
 ---
 
 ## Algorithm Description
 
 ### K-Nearest Neighbors (KNN)
-The algorithm measures the "distance" between books to identify similar items:
-1. **Input**: A matrix of user-book interactions.
-2. **Distance Measure**: Euclidean distance or cosine similarity.
-3. **Output**: A list of similar books with their respective distances.
+The KNN algorithm measures the similarity between books based on user ratings:
+1. **Input**: A user-book rating matrix.
+2. **Output**: A list of books similar to the given input book.
 
 ### Recommendation Function
 The **`get_recommends`** function:
-1. Takes a book title as input.
-2. Finds 5 similar books using the trained KNN model.
-3. Returns the input title and a list of 5 recommendations.
+1. Accepts a book title.
+2. Identifies 5 similar books using the trained KNN model.
+3. Returns:
+   - The input book title.
+   - A list of 5 recommended books with their similarity scores.
 
 ---
 
-## Setup Instructions
+## How to Run
 
-1. Clone the repository:
+### Prerequisites
+
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/your-username/book-recommendation-system.git
    cd book-recommendation-system
    ```
 
-2. Install dependencies:
+2. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Download the dataset:
+3. **Run the script**:
    ```bash
-   wget [insert-dataset-url-here]
-   ```
-
-4. Run the script:
-   ```bash
-   python book_recommender.py
+   python book-recommender.py
    ```
 
 ---
 
 ## How It Works
 
-1. **Data Preprocessing**:
-   - Filter out sparse data.
-   - Create a user-book interaction matrix.
+### Steps:
+
+1. **Data Cleaning**:
+   - Remove sparse users and books.
+   - Create a matrix of user-book ratings.
 
 2. **Model Training**:
-   - Train the KNN model on the preprocessed matrix.
+   - Train a **K-Nearest Neighbors** model using the user-book matrix.
 
-3. **Recommendation**:
+3. **Recommendations**:
    - Input a book title into the **`get_recommends`** function.
-   - Get a ranked list of 5 similar books with their distances.
-
-4. **Testing**:
-   - Validate the function with test cases.
+   - Output a list of 5 similar books with similarity scores.
 
 ---
 
 ## File Breakdown
 
 ### [code-breakdown.md](./code-breakdown.md)
-This file explains the project code:
-- Code structure
-- Detailed walkthrough of functions and logic
+- A comprehensive explanation of the code, including:
+  - Data cleaning and preparation.
+  - Model training and recommendation logic.
 
-### [book_recommendation.md](./book_recommendation.md)
-This file provides insights into:
-- Dataset handling
-- Nearest Neighbors algorithm
-- Challenges and solutions
+### [recommendation-system.md](./recommendation-system.md)
+- Insights into the recommendation system's implementation.
+- Challenges faced and solutions adopted.
 
 ---
 
-### Solution Process
+## Testing
 
-#### Key Steps:
-1. **Data Cleaning**:
-   - Import the Book-Crossings dataset.
-   - Filter users with fewer than 200 ratings and books with fewer than 100 ratings to ensure statistical significance.
+The project includes a test function to validate the recommendation system:
+```python
+test_book_recommendation()
+```
+If all tests pass, the system outputs:
+> "You passed the challenge! 🎉🎉🎉🎉🎉"
 
-2. **Data Preparation**:
-   - Create a user-book interaction matrix (rows: users, columns: books).
-   - Normalize or scale the data as required for Nearest Neighbors.
-
-3. **Model Implementation**:
-   - Use the **`NearestNeighbors`** algorithm from `sklearn.neighbors` to measure closeness.
-   - Train the model on the user-book matrix.
-
-4. **Recommendation Function**:
-   - Create a function **`get_recommends`** that takes a book title as input.
-   - Find 5 similar books using the trained NearestNeighbors model.
-   - Return the input title and a list of 5 recommendations with their respective distances.
-
-5. **Testing**:
-   - Validate the function against test cases to ensure correctness.
-
+---
 
 ## Contributing
 
 We welcome contributions! To contribute:
 1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature-name`).
-3. Commit changes (`git commit -m "Add feature"`).
-4. Push the branch (`git push origin feature-name`).
+2. Create a feature branch:
+   ```bash
+   git checkout -b feature-name
+   ```
+3. Commit changes:
+   ```bash
+   git commit -m "Add feature"
+   ```
+4. Push the branch:
+   ```bash
+   git push origin feature-name
+   ```
 5. Open a pull request.
 
 ---
@@ -152,3 +146,117 @@ This project is licensed under the [MIT License](./LICENSE).
 ---
 
 Happy recommending! 🚀
+```
+
+---
+
+### Additional Files
+
+#### 1. code-breakdown.md
+
+```markdown
+# Code Breakdown: Book Recommendation System
+
+---
+
+## Overview
+
+This file provides a detailed explanation of the project code for the Book Recommendation System.
+
+---
+
+## Sections
+
+### 1. Import Libraries
+
+The following libraries are used:
+- **Pandas**: Data manipulation and analysis.
+- **NumPy**: Numerical computations.
+- **SciPy (csr_matrix)**: Efficient matrix operations.
+- **scikit-learn (NearestNeighbors)**: Implementation of the KNN algorithm.
+- **Matplotlib**: Data visualization.
+
+---
+
+### 2. Data Loading
+
+Two CSV files are loaded:
+- **BX-Books.csv**: Book metadata (ISBN, Title, Author).
+- **BX-Book-Ratings.csv**: User ratings for books.
+
+---
+
+### 3. Data Cleaning
+
+Steps:
+1. Filter users with fewer than 200 ratings.
+2. Filter books with fewer than 100 ratings.
+3. Create a user-book rating matrix.
+
+---
+
+### 4. Model Training
+
+The **`NearestNeighbors`** model is trained on the sparse user-book rating matrix. The distance metric used is cosine similarity.
+
+---
+
+### 5. Recommendation Function
+
+The **`get_recommends`** function:
+1. Takes a book title as input.
+2. Finds the 5 nearest neighbors using the trained KNN model.
+3. Returns the input book title and 5 recommended books with similarity scores.
+
+---
+
+## Challenges
+
+1. Sparsity in the dataset.
+2. Efficient handling of large-scale data.
+
+---
+
+```
+
+#### 2. recommendation-system.md
+
+```markdown
+# Recommendation System Insights
+
+---
+
+## Overview
+
+This file explores the recommendation logic and algorithmic insights behind the Book Recommendation System.
+
+---
+
+## Algorithm: K-Nearest Neighbors (KNN)
+
+### Why KNN?
+
+KNN is chosen for its simplicity and effectiveness in computing similarities for sparse datasets.
+
+### Distance Metric
+
+Cosine similarity is used to measure the closeness of books based on user preferences.
+
+---
+
+## Challenges
+
+1. **Data Sparsity**:
+   - Many books and users have very few interactions.
+   - Solution: Filter users and books with insufficient ratings.
+
+2. **Scalability**:
+   - Handling 1.1 million ratings efficiently.
+   - Solution: Use sparse matrices for memory-efficient computations.
+
+---
+
+## Improvements
+
+1. Use advanced matrix factorization methods like SVD for better scalability.
+2. Include genre or author metadata for hybrid recommendations.
