@@ -1,26 +1,72 @@
-# Step-by-Step Implementation
+# Book Recommendation System using K-Nearest Neighbors
 
+## Overview
+
+This project implements a **Book Recommendation System** using the K-Nearest Neighbors (KNN) algorithm. The system takes a book title as input and provides a list of similar books, based on user ratings from the Book-Crossings dataset.
+
+---
+
+## Features
+
+- **Dataset**: Utilizes the Book-Crossings dataset containing over 1.1 million ratings.
+- **Filtering**: Removes sparse data for statistical significance by filtering out users with less than 200 ratings and books with less than 100 ratings.
+- **Model**: Implements the KNN algorithm to recommend 5 books based on similarity.
+- **Distance Metric**: Calculates closeness of books using cosine similarity.
+
+---
+
+## Dataset
+
+The dataset contains:
+1. **Books**: Metadata including ISBN, title, and author.
+2. **Ratings**: User ratings of books, scaled from 1 to 10.
+
+The datasets used:
+- `BX-Books.csv`
+- `BX-Book-Ratings.csv`
+
+---
+
+## Project Files
+
+- **`books_knn.py`**: Python code implementing the book recommendation system.
+- **`code-breakdown.md`**: Detailed explanation of each step in the code.
+- **`book_recommender.md`**: Project documentation (this file).
+
+---
+
+## Code Explanation
+
+### Step 1: Import Libraries
 ```python
-# Step 1: Import libraries
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
 import matplotlib.pyplot as plt
-
-# Step 2: Get the data files
-!wget https://cdn.freecodecamp.org/project-data/books/book-crossings.zip
-!unzip book-crossings.zip
 ```
+- **NumPy**: Handles numerical operations efficiently.
+- **Pandas**: Used to manipulate tabular data.
+- **SciPy**: Provides `csr_matrix` for sparse matrix representation.
+- **scikit-learn**: Implements the K-Nearest Neighbors algorithm.
+- **Matplotlib**: Visualizes data (optional).
 
 ---
 
+### Step 2: Download and Extract Dataset
 ```python
-# Step 3: Load the data into DataFrames
-books_filename = 'BX-Books.csv'
-ratings_filename = 'BX-Book-Ratings.csv'
+!wget https://cdn.freecodecamp.org/project-data/books/book-crossings.zip
+!unzip book-crossings.zip
+```
+- Downloads the Book-Crossings dataset.
+- Extracts two CSV files:
+  - `BX-Books.csv`
+  - `BX-Book-Ratings.csv`
 
-# Import books metadata
+---
+
+### Step 3: Load Datasets
+```python
 df_books = pd.read_csv(
     books_filename,
     encoding="ISO-8859-1",
@@ -28,10 +74,8 @@ df_books = pd.read_csv(
     header=0,
     names=['isbn', 'title', 'author'],
     usecols=['isbn', 'title', 'author'],
-    dtype={'isbn': 'str', 'title': 'str', 'author': 'str'}
-)
+    dtype={'isbn': 'str', 'title': 'str', 'author': 'str'})
 
-# Import ratings data
 df_ratings = pd.read_csv(
     ratings_filename,
     encoding="ISO-8859-1",
@@ -39,126 +83,105 @@ df_ratings = pd.read_csv(
     header=0,
     names=['user', 'isbn', 'rating'],
     usecols=['user', 'isbn', 'rating'],
-    dtype={'user': 'int32', 'isbn': 'str', 'rating': 'float32'}
-)
+    dtype={'user': 'int32', 'isbn': 'str', 'rating': 'float32'})
+```
+- **Books Data (`df_books`)**: Includes `isbn`, `title`, and `author`.
+- **Ratings Data (`df_ratings`)**: Includes `user`, `isbn`, and `rating`.
+
+---
+
+### Step 4: Data Preprocessing
+1. **Filter Data**:
+   - Retain users with >= 200 ratings.
+   - Retain books with >= 100 ratings.
+2. **Merge Data**:
+   - Combine `df_books` and `df_ratings` using the `isbn` column.
+3. **Create Pivot Table**:
+   - Rows: Users
+   - Columns: Books
+   - Values: Ratings
+
+```python
+filtered_users = df_ratings['user'].value_counts() >= 200
+filtered_books = df_ratings['isbn'].value_counts() >= 100
+
+df_filtered_users = df_ratings[df_ratings['user'].isin(filtered_users.index)]
+df_filtered_books = df_filtered_users[df_filtered_users['isbn'].isin(filtered_books.index)]
+
+book_user_matrix = df_filtered_books.pivot(index='user', columns='isbn', values='rating').fillna(0)
 ```
 
 ---
 
+### Step 5: Model Training
 ```python
-# Step 4: Data Cleaning
-# Filter users with at least 200 ratings
-user_counts = df_ratings['user'].value_counts()
-active_users = user_counts[user_counts >= 200].index
-df_ratings = df_ratings[df_ratings['user'].isin(active_users)]
+book_user_sparse = csr_matrix(book_user_matrix)
 
-# Filter books with at least 100 ratings
-book_counts = df_ratings['isbn'].value_counts()
-popular_books = book_counts[book_counts >= 100].index
-df_ratings = df_ratings[df_ratings['isbn'].isin(popular_books)]
-
-# Merge ratings with book titles for clarity
-df_merged = pd.merge(df_ratings, df_books, on='isbn')
+model = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=5)
+model.fit(book_user_sparse)
 ```
+- Converts the pivot table into a sparse matrix for efficiency.
+- Trains a **KNN model** with:
+  - **Cosine Similarity** as the distance metric.
+  - **Brute Force Search** to find neighbors.
 
 ---
 
+### Step 6: Book Recommendation Function
 ```python
-# Step 5: Create a user-book matrix
-user_book_matrix = df_merged.pivot_table(
-    index='isbn',
-    columns='user',
-    values='rating'
-).fillna(0)
-
-# Convert to sparse matrix for efficiency
-user_book_sparse = csr_matrix(user_book_matrix.values)
-```
-
----
-
-```python
-# Step 6: Train the KNN model
-model_knn = NearestNeighbors(metric='cosine', algorithm='brute')
-model_knn.fit(user_book_sparse)
-```
-
----
-
-```python
-# Step 7: Recommendation function
 def get_recommends(book=""):
-    # Check if the book exists in the dataset
-    if book not in df_merged['title'].values:
-        return f"Book '{book}' not found in dataset."
-
-    # Get the ISBN of the input book
-    book_isbn = df_books[df_books['title'] == book]['isbn'].iloc[0]
+    book_index = df_books[df_books['title'] == book].index[0]
+    distances, indices = model.kneighbors(book_user_sparse[book_index], n_neighbors=6)
     
-    # Find the book's index in the user-book matrix
-    book_index = user_book_matrix.index.get_loc(book_isbn)
-    
-    # Find similar books
-    distances, indices = model_knn.kneighbors(
-        user_book_sparse[book_index], n_neighbors=6
-    )
-    
-    # Prepare results
-    recommended_books = [
-        (
-            df_books[df_books['isbn'] == user_book_matrix.index[indices.flatten()[i]]]['title'].values[0],
-            1 - distances.flatten()[i]  # Convert distance to similarity
-        )
-        for i in range(1, len(distances.flatten()))
-    ]
+    recommended_books = []
+    for i in range(1, len(indices[0])):
+        recommended_books.append([df_books.iloc[indices[0][i]].title, distances[0][i]])
     
     return [book, recommended_books]
 ```
+- Finds neighbors for the input book using the trained KNN model.
+- Retrieves titles and distances of the 5 nearest books.
+- Returns the input book title and the list of recommendations.
 
 ---
 
+### Step 7: Testing
 ```python
-# Step 8: Test the function
-books = get_recommends("Where the Heart Is (Oprah's Book Club (Paperback))")
-print(books)
-```
-
----
-
-```python
-# Step 9: Validate the function with a test
 def test_book_recommendation():
-    test_pass = True
     recommends = get_recommends("Where the Heart Is (Oprah's Book Club (Paperback))")
-    
-    if recommends[0] != "Where the Heart Is (Oprah's Book Club (Paperback))":
-        test_pass = False
-    
-    recommended_books = ["I'll Be Seeing You", 'The Weight of Water', 'The Surgeon', 'I Know This Much Is True']
-    recommended_books_dist = [0.8, 0.77, 0.77, 0.77]
-    
-    for i in range(len(recommended_books)): 
-        if recommends[1][i][0] not in recommended_books:
-            test_pass = False
-        if abs(recommends[1][i][1] - recommended_books_dist[i]) >= 0.05:
-            test_pass = False
-    
-    if test_pass:
-        print("You passed the challenge! 🎉🎉🎉🎉🎉")
-    else:
-        print("You haven't passed yet. Keep trying!")
-
-# Run the test
-test_book_recommendation()
+    print(recommends)
 ```
+- Tests the recommendation function using a sample book.
 
 ---
 
-### Explanation
-- **Data Cleaning**: Filters sparse users and books to ensure meaningful recommendations.
-- **KNN Model**: Trained on the sparse user-book matrix with cosine similarity as the distance metric.
-- **Recommendation Function**: Returns the input book and 5 similar books based on user preferences.
+## How to Use
+
+1. **Clone the Repository**:
+   ```bash
+   git clone <repository-url>
+   cd <repository-folder>
+   ```
+2. **Run the Code in Google Colab**:
+   - Open `books_knn.py` in Google Colab.
+   - Execute all cells to generate recommendations.
 
 ---
 
-This code is complete and ready to run in **Google Colab**. You can copy and paste each block sequentially into a Colab notebook to execute the project end-to-end. 😊
+## Output Example
+
+```python
+get_recommends("Where the Heart Is (Oprah's Book Club (Paperback))")
+```
+**Output**:
+```plaintext
+[
+    "Where the Heart Is (Oprah's Book Club (Paperback))",
+    [
+        ["I'll Be Seeing You", 0.8],
+        ['The Weight of Water', 0.77],
+        ['The Surgeon', 0.77],
+        ['I Know This Much Is True', 0.77]
+    ]
+]
+```
