@@ -67,6 +67,11 @@ import matplotlib.pyplot as plt
 
 ### Step 3: Load Datasets
 ```python
+# Define the filenames for the datasets
+books_filename = 'BX-Books.csv'
+ratings_filename = 'BX-Book-Ratings.csv'
+
+# Load the datasets
 df_books = pd.read_csv(
     books_filename,
     encoding="ISO-8859-1",
