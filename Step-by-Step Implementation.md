@@ -67,11 +67,10 @@ import matplotlib.pyplot as plt
 
 ### Step 3: Load Datasets
 ```python
-# Define the filenames for the datasets
-books_filename = 'BX-Books.csv'
-ratings_filename = 'BX-Book-Ratings.csv'
+import pandas as pd
 
-# Load the datasets
+# Load BX-Books.csv
+books_filename = 'BX-Books.csv'
 df_books = pd.read_csv(
     books_filename,
     encoding="ISO-8859-1",
@@ -79,8 +78,11 @@ df_books = pd.read_csv(
     header=0,
     names=['isbn', 'title', 'author'],
     usecols=['isbn', 'title', 'author'],
-    dtype={'isbn': 'str', 'title': 'str', 'author': 'str'})
+    dtype={'isbn': 'str', 'title': 'str', 'author': 'str'}
+)
 
+# Load BX-Book-Ratings.csv
+ratings_filename = 'BX-Book-Ratings.csv'
 df_ratings = pd.read_csv(
     ratings_filename,
     encoding="ISO-8859-1",
@@ -88,7 +90,11 @@ df_ratings = pd.read_csv(
     header=0,
     names=['user', 'isbn', 'rating'],
     usecols=['user', 'isbn', 'rating'],
-    dtype={'user': 'int32', 'isbn': 'str', 'rating': 'float32'})
+    dtype={'user': 'int32', 'isbn': 'str', 'rating': 'float32'}
+)
+
+print(df_books.head())  # Preview books DataFrame
+print(df_ratings.head())  # Preview ratings DataFrame
 ```
 - **Books Data (`df_books`)**: Includes `isbn`, `title`, and `author`.
 - **Ratings Data (`df_ratings`)**: Includes `user`, `isbn`, and `rating`.
@@ -107,13 +113,18 @@ df_ratings = pd.read_csv(
    - Values: Ratings
 
 ```python
-filtered_users = df_ratings['user'].value_counts() >= 200
-filtered_books = df_ratings['isbn'].value_counts() >= 100
+# Filter users with at least 200 ratings
+filtered_users = df_ratings['user'].value_counts()
+filtered_users = filtered_users[filtered_users >= 200].index
 
-df_filtered_users = df_ratings[df_ratings['user'].isin(filtered_users.index)]
-df_filtered_books = df_filtered_users[df_filtered_users['isbn'].isin(filtered_books.index)]
+# Filter books with at least 100 ratings
+filtered_books = df_ratings['isbn'].value_counts()
+filtered_books = filtered_books[filtered_books >= 100].index
 
-book_user_matrix = df_filtered_books.pivot(index='user', columns='isbn', values='rating').fillna(0)
+# Apply filters
+df_filtered_users = df_ratings[df_ratings['user'].isin(filtered_users)]
+df_filtered_books = df_filtered_users[df_filtered_users['isbn'].isin(filtered_books)]
+
 ```
 
 ---
